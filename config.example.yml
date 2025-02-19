@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=https://github.com/jeremy-wolfe/frigate-ntfy/blob/main/config.schema.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/jeremy-wolfe/frigate-ntfy/refs/heads/main/config.schema.json
 
 # Commented lines below denote optional settings and their default values
 # Uncomment and modify or delete as needed
