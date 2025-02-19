@@ -1,5 +1,7 @@
 services:
   frigate-ntfy:
     image: ghcr.io/jeremy-wolfe/frigate-ntfy:latest
+    tty: true
+    restart: unless-stopped
     volumes:
       - ./config.yml:/app/config.yml:ro
