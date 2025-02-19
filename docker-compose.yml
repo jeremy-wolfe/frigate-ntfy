@@ -2,6 +2,4 @@ services:
   frigate-ntfy:
     image: ghcr.io/jeremy-wolfe/frigate-ntfy:latest
     volumes:
-      - ./:/app:ro
-      - ./config.yml:/config/config.yml:ro
-    working_dir: /config
+      - ./config.yml:/app/config.yml:ro
