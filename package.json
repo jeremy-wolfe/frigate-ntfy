@@ -1,0 +1,40 @@
+{
+	"name": "frigate-ntfy",
+	"version": "1.0.0",
+	"description": "MQTT to ntfy gateway for Frigate NVR notifications",
+	"keywords": [
+		"frigate",
+		"nvr",
+		"ntfy",
+		"mqtt"
+	],
+	"homepage": "https://github.com/jeremy-wolfe/frigate-ntfy#readme",
+	"bugs": {
+		"url": "https://github.com/jeremy-wolfe/frigate-ntfy/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/jeremy-wolfe/frigate-ntfy.git"
+	},
+	"license": "MPL-2.0",
+	"author": "Jeremy Wolfe",
+	"type": "module",
+	"main": "index.js",
+	"scripts": {
+		"start": "node dist/index.js",
+		"build": "tsc -b && npm run schema",
+		"docker-build": "docker compose -f docker-compose.build.yml build",
+		"docker-push": "docker compose -f docker-compose.build.yml push",
+		"schema": "npx ts-json-schema-generator -p 'src/config.ts' -t 'ConfigFile' -o config.schema.json -i 'frigate-ntfy-config'"
+	},
+	"devDependencies": {
+		"@types/node": "^22.13.4",
+		"ts-json-schema-generator": "^2.3.0",
+		"typescript": "^5.7.3"
+	},
+	"dependencies": {
+		"chalk": "^5.4.1",
+		"mqtt": "^5.10.3",
+		"yaml": "^2.7.0"
+	}
+}

@@ -1,0 +1,7 @@
+#!/bin/bash
+
+GH_URL='https://github.com/jeremy-wolfe/frigate-ntfy/blob/main'
+
+curl -O "$GH_URL/docker-compose.yml"
+curl -o config.yml "$GH_URL/config.example.yml"
+docker compose pull

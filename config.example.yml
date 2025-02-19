@@ -1,0 +1,44 @@
+# yaml-language-server: $schema=https://github.com/jeremy-wolfe/frigate-ntfy/blob/main/config.schema.json
+
+# Commented lines below denote optional settings and their default values
+# Uncomment and modify or delete as needed
+
+# locale: en-US
+timezone: America/Chicago
+
+mqtt:
+  host: mosquitto
+  port: 1883
+  # username: 
+  # password: 
+  # topics:
+  #  - frigate/reviews
+
+ntfy:
+  url: https://ntfy.example.com
+
+  ## Topic defaults to match the mqtt topic for the event, replacing / with _
+  ## For example, events in frigate/reviews would be pushed to <ntfy.url>/frigate_reviews
+  ## If overrriden below, ALL notifications will go to the specified topic
+  # topic: 
+
+  ## Use either token OR username+password
+  # auth:
+  #   token: 
+  #   username: 
+  #   password: 
+
+frigate:
+  localUrl: http://frigate:5000
+  publicUrl: https://frigate.example.com:5000
+
+  # Optional filters to limit which events are sent to ntfy
+  # Each filter is a list of strings, and events must match all filters to be sent
+  # Severity can be alert or detection
+
+  # filters:
+  #   severity:
+  #     - alert
+  #   zone:
+  #   camera:
+  #   object:

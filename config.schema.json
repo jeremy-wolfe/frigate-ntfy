@@ -1,0 +1,164 @@
+{
+  "$id": "frigate-ntfy-config",
+  "$ref": "#/definitions/ConfigFile",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "ConfigFile": {
+      "additionalProperties": false,
+      "properties": {
+        "$schema": {
+          "type": "string"
+        },
+        "frigate": {
+          "additionalProperties": false,
+          "properties": {
+            "filters": {
+              "$ref": "#/definitions/FrigateFilters"
+            },
+            "localUrl": {
+              "type": "string"
+            },
+            "publicUrl": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "localUrl",
+            "publicUrl"
+          ],
+          "type": "object"
+        },
+        "locale": {
+          "type": "string"
+        },
+        "mqtt": {
+          "additionalProperties": false,
+          "properties": {
+            "host": {
+              "type": "string"
+            },
+            "password": {
+              "type": "string"
+            },
+            "port": {
+              "type": [
+                "string",
+                "number"
+              ]
+            },
+            "topics": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "username": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "host",
+            "port"
+          ],
+          "type": "object"
+        },
+        "ntfy": {
+          "additionalProperties": false,
+          "properties": {
+            "auth": {
+              "$ref": "#/definitions/NtfyAuth"
+            },
+            "topic": {
+              "type": "string"
+            },
+            "url": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "url"
+          ],
+          "type": "object"
+        },
+        "timezone": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "mqtt",
+        "ntfy",
+        "frigate"
+      ],
+      "type": "object"
+    },
+    "FrigateFilters": {
+      "additionalProperties": false,
+      "properties": {
+        "camera": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "object": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "severity": {
+          "items": {
+            "$ref": "#/definitions/FrigateSeverity"
+          },
+          "type": "array"
+        },
+        "zone": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "FrigateSeverity": {
+      "enum": [
+        "detection",
+        "alert"
+      ],
+      "type": "string"
+    },
+    "NtfyAuth": {
+      "anyOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "token": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "token"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "password": {
+              "type": "string"
+            },
+            "username": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "username",
+            "password"
+          ],
+          "type": "object"
+        }
+      ]
+    }
+  }
+}

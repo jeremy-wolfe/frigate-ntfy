@@ -1,0 +1,4 @@
+services:
+  build:
+    extends: {service: frigate-ntfy, file: docker-compose.yml}
+    build: .
