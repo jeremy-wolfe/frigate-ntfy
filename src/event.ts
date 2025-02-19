@@ -48,9 +48,12 @@ export class Event extends Notification<FrigateEventDetails> {
 			}
 		}
 
+		const headers = {} as Required<NtfyHeaders>;
+		for (const [key, value] of Object.entries(ntfyHeaders) as [keyof NtfyHeaders, string][]) if (value) headers[key] = value.replace(/\n/g, '\\n');
+
 		const response = await fetch(`${url}/${topic}`, {
 			method: 'PUT',
-			headers: ntfyHeaders as Required<NtfyHeaders>,
+			headers,
 			body: (await this.getSnapshot()) || undefined
 		});
 
