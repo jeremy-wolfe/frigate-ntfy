@@ -1,7 +1,7 @@
 import type {FrigateEventDetails} from './frigate.js';
 import {f, Notification} from './notification.js';
 import type {Review} from './review.js';
-import type {NtfyEvent, NtfyHeaders} from './ntfy.js';
+import {NtfyViewAction, type NtfyEvent, type NtfyHeaders} from './ntfy.js';
 
 export class Event extends Notification<FrigateEventDetails> {
 	protected readonly logColor = 'blue';
@@ -77,7 +77,7 @@ export class Event extends Notification<FrigateEventDetails> {
 
 	private get ntfyData(): Pick<NtfyEvent, 'title' | 'message' | 'click' | 'actions'> {
 		const {config} = this.gateway;
-		const {zones, has_clip} = this.payload;
+		const {zones, has_clip, has_snapshot} = this.payload;
 		const zoneList = zones.map((zone) => this.toTitle(zone)).join(', ');
 		const message = [];
 
@@ -87,8 +87,12 @@ export class Event extends Notification<FrigateEventDetails> {
 		return {
 			title: this.title,
 			message: message.join('\n'),
-			click: has_clip ? `${config.frigate.localUrl}/api/events/${this.id}/clip.mp4` : undefined,
-			actions: []
+			click: has_clip ? `${config.frigate.publicUrl}/api/events/${this.id}/clip.mp4` : undefined,
+			actions: [
+				new NtfyViewAction('Review Event', `${config.frigate.publicUrl}/review?id=${this.review.id}`, false),
+				...(has_clip ? [new NtfyViewAction('View Clip', `${config.frigate.publicUrl}/api/events/${this.id}/clip.mp4`, false)] : []),
+				...(has_snapshot ? [new NtfyViewAction('View Snapshot', `${config.frigate.publicUrl}/api/events/${this.id}/snapshot.jpg`, false)] : [])
+			]
 		};
 	}
 
