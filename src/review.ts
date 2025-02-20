@@ -23,8 +23,12 @@ export class Review extends Notification<FrigateReviewDetails> {
 	public async evaluate(): Promise<void> {
 		const {allOk, type} = this;
 		this.log([f('EVAL', 'yellow'), allOk.statusLog, f(type.substring(0,3).toUpperCase(), typeColors[type])]);
+		if (type === 'end') return this.end();
 		if (allOk.value) await Promise.all(this.payload.data.detections.map(async (eventId) => (await Event.load(this, eventId)).evaluate()));
-		if (type === 'end') for (const [, event] of this.gateway.events) event.clear(this.id);
+	}
+
+	public end(): void {
+		for (const [, event] of this.gateway.events) event.clear(this.id);
 	}
 
 	protected get objects(): string[] {
