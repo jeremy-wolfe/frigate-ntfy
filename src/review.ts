@@ -1,11 +1,17 @@
 import {Event} from './event.js';
 import type {FrigateReview, FrigateReviewDetails, FrigateReviewType} from './frigate.js';
 import type {Gateway} from './gateway.js';
-import {Notification} from './notification.js';
-import chalk from 'chalk';
+import {f, Notification} from './notification.js';
+
+const typeColors = {
+	new: 'green',
+	update: 'yellow',
+	end: 'gray'
+} as const;
 
 export class Review extends Notification<FrigateReviewDetails> {
-	protected readonly logLabel = chalk.magenta('[RVW]');
+	protected readonly logColor = 'magenta';
+	protected readonly logLabel = 'REVW';
 	private readonly type: FrigateReviewType;
 
 	constructor(gateway: Gateway, public readonly mqttTopic: string, rawPayload: Buffer) {
@@ -16,8 +22,7 @@ export class Review extends Notification<FrigateReviewDetails> {
 
 	public async evaluate(): Promise<void> {
 		const {allOk, type} = this;
-		const logType = chalk[type === 'new' ? 'green' : type === 'update' ? 'yellow' : 'red'](`[${type.substring(0,3).toUpperCase()}]`);
-		this.log(chalk.yellow('[EVL]'), `${logType}: ${chalk.blue(allOk.statusLog)}`);
+		this.log([f('EVAL', 'yellow'), allOk.statusLog, f(type.substring(0,3).toUpperCase(), typeColors[type])]);
 		if (allOk.value) await Promise.all(this.payload.data.detections.map(async (eventId) => (await Event.load(this, eventId)).evaluate()));
 		if (type === 'end') for (const [, event] of this.gateway.events) event.clear(this.id);
 	}

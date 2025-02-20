@@ -1,11 +1,11 @@
-import chalk from 'chalk';
 import type {FrigateEventDetails} from './frigate.js';
-import {Notification} from './notification.js';
+import {f, Notification} from './notification.js';
 import type {Review} from './review.js';
 import type {NtfyEvent, NtfyHeaders} from './ntfy.js';
 
 export class Event extends Notification<FrigateEventDetails> {
-	protected readonly logLabel = chalk.blue('[EVT]');
+	protected readonly logColor = 'blue';
+	protected readonly logLabel = 'EVNT';
 
 	constructor(private readonly review: Review, payload: FrigateEventDetails) {
 		super(review.gateway, payload);
@@ -20,7 +20,7 @@ export class Event extends Notification<FrigateEventDetails> {
 	public clear(reviewId: string): void {
 		if (!this.gateway.events.has(this.id)) return;
 		if (reviewId !== this.review.id) return;
-		this.log(chalk.gray('[CLR]'));
+		this.log([f('CLEAR', 'gray')]);
 		this.gateway.events.delete(this.id);
 	}
 
@@ -29,12 +29,12 @@ export class Event extends Notification<FrigateEventDetails> {
 		if (events.has(this.id)) return;
 
 		const {allOk} = this;
-		this.log(chalk.yellow('[EVL]'), `: ${chalk.blue(allOk.statusLog)}`);
+		this.log([f('EVAL', 'yellow'), allOk.statusLog]);
 		if (allOk.value) this.push();
 	}
 
 	private async push(): Promise<void> {
-		if (this.gateway.events.has(this.id)) return this.log(chalk.yellow('[DUP]'));
+		if (this.gateway.events.has(this.id)) return this.log([f('SKIP', 'gray')]);
 		this.gateway.events.set(this.id, this);
 
 		const {url, auth} = this.gateway.config.ntfy;
@@ -51,13 +51,13 @@ export class Event extends Notification<FrigateEventDetails> {
 		const headers = {} as Required<NtfyHeaders>;
 		for (const [key, value] of Object.entries(ntfyHeaders) as [keyof NtfyHeaders, string][]) if (value) headers[key] = value.replace(/\n/g, '\\n');
 
-		const response = await fetch(`${url}/${topic}`, {
+		const {status, statusText} = await fetch(`${url}/${topic}`, {
 			method: 'PUT',
 			headers,
 			body: (await this.getSnapshot()) || undefined
 		});
 
-		this.log(chalk.green('[PSH]'), `: ${response.status} ${response.statusText}`);
+		this.log([f('PUSH', 'cyan'), f(`${status} ${statusText}`, status === 200 ? 'green' : 'red')]);
 	}
 
 	private async getSnapshot(): Promise<Blob | void> {
@@ -67,7 +67,7 @@ export class Event extends Notification<FrigateEventDetails> {
 			const response = await fetch(`${config.frigate.localUrl}/api/events/${this.id}/snapshot.jpg`);
 			return response.blob();
 		} catch (error) {
-			this.log(chalk.red('[ERR]'), `: Error fetching snapshot: ${(error as Error)?.message || error}`);
+			this.log([f('ERR', 'red')], `- Error fetching snapshot: ${(error as Error)?.message || error}`);
 		}
 	}
 

@@ -1,4 +1,4 @@
-import chalk from 'chalk';
+import chalk, {ColorName} from 'chalk';
 import type {Gateway} from './gateway.js';
 import type {FrigateEventDetails, FrigateReviewDetails} from './frigate.js';
 import {FrigateFilterName, frigateFilterNames, FrigateFilters} from './config.js';
@@ -11,8 +11,14 @@ class FilterStatus<T extends FrigateFilterName> {
 	}
 
 	public get statusLog(): string {
-		return chalk[this.value ? 'green' : 'red'](this.name);
+		const text = this.name.substring(0, 3).toUpperCase();
+		return this.value ? chalk.cyan(text) : chalk.strikethrough.gray(text);
 	}
+}
+
+export function f(value: string, color?: ColorName): string {
+	if (color) return chalk[color](`[${value}]`);
+	return `[${value}]`;
 }
 
 interface FilterStatusResult {
@@ -25,6 +31,7 @@ export abstract class Notification<T extends FrigateReviewDetails | FrigateEvent
 	public readonly id: string;
 	protected readonly timestamp: string;
 	protected readonly filters: FrigateFilters;
+	protected abstract readonly logColor: ColorName;
 	protected abstract readonly logLabel: string;
 	protected abstract get objects(): string[];
 	public abstract get severityOk(): boolean;
@@ -39,7 +46,15 @@ export abstract class Notification<T extends FrigateReviewDetails | FrigateEvent
 		const {config} = this.gateway;
 		const {start_time} = this.payload;
 		this.id = this.payload.id;
-		this.timestamp = (new Date(start_time * 1000)).toLocaleString(config.locale, {timeZone: config.timezone});
+		this.timestamp = (new Date(start_time * 1000)).toLocaleString(config.locale, {
+			timeZone: config.timezone,
+			hour: '2-digit',
+			minute: '2-digit',
+			second: '2-digit',
+			month: '2-digit',
+			day: '2-digit',
+			year: 'numeric'
+		});
 		this.filters = config.frigate.filters;
 	}
 
@@ -47,17 +62,22 @@ export abstract class Notification<T extends FrigateReviewDetails | FrigateEvent
 		return value.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase());
 	}
 
-	protected log(action: string, message: string = ''): void {
-		console.log(`${this.logLabel}${action} ${this.logHeading} ${message}`);
+	protected log(flags: string[], message?: string): void {
+		console.log( [
+			chalk[this.logColor](this.payload.id.padEnd(25)),
+			this.timestamp,
+			f(this.logLabel, this.logColor) + flags.join(''),
+			this.objectList, '|', this.toTitle(this.payload.camera),
+			message || ''
+		].join(' '));
+	}
+
+	protected get objectList(): string {
+		return this.objects.map((object) => this.toTitle(object)).join(', ');
 	}
 
 	protected get title(): string {
-		const objectList = this.objects.map((object) => this.toTitle(object)).join(', ');
-		return `${objectList} found on ${this.toTitle(this.payload.camera)} camera`;
-	}
-
-	protected get logHeading(): string {
-		return `${this.payload.id} @ ${this.timestamp} - ${this.title}`;
+		return `${this.objectList} found on ${this.toTitle(this.payload.camera)} camera`;
 	}
 
 	protected get allOk(): FilterStatusResult {
@@ -65,7 +85,7 @@ export abstract class Notification<T extends FrigateReviewDetails | FrigateEvent
 		return {
 			statuses,
 			value: statuses.every(({value}) => value),
-			statusLog: statuses.map(({statusLog}) => statusLog).join(' ')
+			statusLog: `[${statuses.map(({statusLog}) => statusLog).join(' ')}]`
 		};
 	}
 }
